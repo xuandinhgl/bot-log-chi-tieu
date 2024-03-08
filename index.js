@@ -3,6 +3,7 @@ require('dotenv').config()
 const BootBot = require('bootbot');
 const process = require('process');
 const {google} = require('googleapis');
+const { DateTime } = require( "luxon");
 
 const bot = new BootBot({
     accessToken: process.env.FB_ACCESS_TOKEN || "",
@@ -67,13 +68,9 @@ const format = (price) => {
 }
 
 const getPayTime = () => {
-    const m = new Date();
-    return m.getUTCFullYear() + "-" +
-        ("0" + (m.getUTCMonth()+1)).slice(-2) + "-" +
-        ("0" + m.getUTCDate()).slice(-2) + " " +
-        ("0" + m.getHours()).slice(-2) + ":" +
-        ("0" + m.getMinutes()).slice(-2) + ":" +
-        ("0" + m.getSeconds()).slice(-2);
+    const local = DateTime.local();
+    const rezoned = local.setZone(process.env.TIME_ZONE);
+    return rezoned.toFormat(process.env.DATE_TIME_FORMAT)
 }
 
 bot.hear(regex, async (payload, chat) => {
