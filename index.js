@@ -3,13 +3,6 @@ require('dotenv').config()
 const BootBot = require('bootbot');
 const process = require('process');
 const {google} = require('googleapis');
-const fs = require('fs').promises;
-const path = require('path');
-
-const {authenticate} = require('@google-cloud/local-auth');
-
-const TOKEN_PATH = path.join(process.cwd(), 'token.json');
-const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
 const bot = new BootBot({
     accessToken: process.env.FB_ACCESS_TOKEN || "",
@@ -17,7 +10,7 @@ const bot = new BootBot({
     appSecret: process.env.FB_APP_SECRET || ""
 });
 
-const regex = /log (.*?)\s+(\d+)$/
+const regex = /(.*?)\s+(\d+)$/
 let auth = null;
 
 
@@ -46,7 +39,7 @@ async function AppendDataToSheet({date, content, price}) {
         spreadsheetId: process.env.GSHEET_ID,
         includeValuesInResponse: false,
         valueInputOption: 'USER_ENTERED',
-        range: 'logs!A:C',
+        range: process.env.GSHEET_RANGE,
         requestBody: {
             values: [[date, content, price]]
         }
@@ -58,7 +51,7 @@ async function getTotalPay() {
 
     const res = await sheets.spreadsheets.values.get({
         spreadsheetId: process.env.GSHEET_ID,
-        range: 'logs!E2:E2',
+        range: process.env.GSHEET_TOTAL_RANGE,
     })
 
     return res.data.values
